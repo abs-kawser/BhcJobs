@@ -88,12 +88,12 @@ const HomeScreen = () => {
   // const [showAllIndustries, setShowAllIndustries] = useState(false);
   const [showAllJobs, setShowAllJobs] = useState(false);
   const [showAllCompanies, setShowAllCompanies] = useState(false);
-   const [industries, setIndustries] = useState([]);
+  const [industries, setIndustries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAllIndustries, setShowAllIndustries] = useState(false);
 
   const [jobs, setJobs] = useState([]);
-  const [jobsLoading, setJobsLoading] = useState(true);
+  const [jobsLoading, setJobsLoading] = useState(false);
 
   const displayedIndustries = showAllIndustries
     ? industries
@@ -101,8 +101,8 @@ const HomeScreen = () => {
 
 
   const displayedJobs = showAllJobs
-  ? jobs || []
-  : (jobs || []).slice(0, 4);
+    ? jobs
+    : jobs.slice(0, 4);
   const companies = showAllCompanies ? COMPANIES : COMPANIES.slice(0, 4);
 
 
@@ -111,15 +111,15 @@ const HomeScreen = () => {
 
 
 
- 
+
 
 
 
   const fetchIndustries = async () => {
     try {
       const data = await getIndustries();
-      console.log("Fetched Industries:", JSON.stringify(data, null, 2)); 
-      
+      console.log("Fetched Industries:", JSON.stringify(data, null, 2));
+
       setIndustries(data);
     } catch (error) {
       console.log(error);
@@ -164,22 +164,24 @@ const HomeScreen = () => {
 
 
 
-  
 
 
-const fetchJobs = async () => {
-  try {
-    const data = await getJobs();
 
-    const jobList = data?.data?.data || data?.data || [];
-    console.log("Fetched Jobs:", JSON.stringify(jobList, null, 2)); 
+  const fetchJobs = async () => {
+    try {
+      const data = await getJobs();
 
-    setJobs(jobList);
-  } catch (error) {
-    console.log(error);
-  }
-}; 
-  
+      const jobList = data?.data?.data || data?.data || [];
+      console.log("Fetched Jobs:", JSON.stringify(jobList, null, 2));
+
+      setJobs(jobList);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setJobsLoading(false); // ✅ MUST
+    }
+  };
+
 
   useEffect(() => {
     fetchJobs();
@@ -229,21 +231,50 @@ const fetchJobs = async () => {
   //   </View>
   // ); 
 
+  // ================= JOB CARD =================
   const JobCard = ({ item }) => {
-    const logoUrl = `https://dev.bhcjobs.com/storage/company/${item.company?.image}`;
+    // const logoUrl = `https://api.bhcjobs.com/storage/company-image/${item.image}`; 
+      const logoUrl = item.company?.image
+    ? `https://api.bhcjobs.com/storage/company-image/${item.company.image}`
+    : null;
 
     return (
       <View style={styles.jobCard}>
 
         <View style={styles.jobHeader}>
-          <Text style={styles.jobTitle} numberOfLines={2}>
+          <Text style={styles.jobTitle}>
             {item.job_title}
           </Text>
           <Text style={styles.star}>☆</Text>
         </View>
 
         <View style={styles.companyRow}>
-          <Image source={{ uri: logoUrl }} style={styles.logoCircle} />
+          <Image
+            source={
+              item.company?.image
+                ? { uri: logoUrl }
+                : { uri: "https://via.placeholder.com/40" }
+            }
+            style={styles.logoCircle}
+          />
+
+          {/* <View style={styles.logoCircle}>
+            {item.image ? (
+              <Image
+                source={{
+                  uri: `https://api.bhcjobs.com/storage/company-image/${item.image}`,
+                }}
+                style={{ width: 35, height: 35, borderRadius: 20 }}
+                resizeMode="cover"
+              />
+            ) : (
+              <Text style={{ fontWeight: "bold" }}>
+                {item.company?.charAt(0)}
+              </Text>
+            
+            )}
+          </View> */}
+          
           <Text style={styles.companyName}>
             {item.company_name}
           </Text>
@@ -310,6 +341,7 @@ const fetchJobs = async () => {
       <ScrollView showsVerticalScrollIndicator={false}>
         <HomeHeroSection />
         <View style={styles.container}>
+
           <View style={styles.titleWrapper}>
             <Text style={styles.title}>Popular Industries</Text>
           </View>
@@ -350,16 +382,32 @@ const fetchJobs = async () => {
             {showAllJobs ? "▲" : "▼"}
           </Text>
         </View> */}
-        {jobsLoading ? (
-          <ActivityIndicator size="small" color="#4A90E2" />
-        ) : (
-          <FlatList
-            data={displayedJobs}
-            renderItem={({ item }) => <JobCard item={item} />}
-            keyExtractor={(item) => item.id.toString()}
-            scrollEnabled={false}
-          />
-        )}
+        {/* JOBS */}
+
+
+
+
+        <View style={styles.section}>
+          <View style={styles.titleWrapper}>
+            <Text style={styles.title}>Recommended Jobs</Text>
+          </View>
+          {jobsLoading ? (
+            <ActivityIndicator size="small" color="#4A90E2" />
+          ) : (
+            <FlatList
+              data={displayedJobs}
+              renderItem={({ item }) => <JobCard item={item} />}
+              keyExtractor={(item) => item.id.toString()}
+              scrollEnabled={false}
+            />
+          )}
+          <Text
+            style={styles.toggleBtn}
+            onPress={() => setShowAllJobs(!showAllJobs)}
+          >
+            {showAllJobs ? "▲" : "▼"}
+          </Text>
+        </View>
 
         {/* COMPANIES */}
         <View style={styles.section}>
@@ -462,28 +510,34 @@ const styles = StyleSheet.create({
   },
 
   jobTitle: {
+    // fontWeight: '700',
+    // fontFamily: "Poppins-Bold", 
     fontWeight: '700',
     fontFamily: "Poppins-Bold",
+    textAlign: 'center',
+    flex: 1,
   },
 
   star: {
     color: '#4A90E2',
+    fontSize: 25,
   },
 
   companyRow: {
     flexDirection: 'row',
-    marginTop: 10,
+    // marginTop: 10,
     alignItems: 'center',
   },
 
+
+
   logoCircle: {
-    width: 35,
-    height: 35,
-    borderRadius: 20,
-    backgroundColor: '#eee',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+  width: 50,
+  height: 50,
+  borderRadius: 25,
+  backgroundColor: '#fff',
+  elevation: 3,
+},
 
   companyName: {
     marginLeft: 10,
@@ -493,16 +547,17 @@ const styles = StyleSheet.create({
     backgroundColor: '#EAF2FF',
     padding: 10,
     borderRadius: 8,
-    marginTop: 10,
+    marginTop: 18,
   },
 
   salaryText: {
     fontSize: 12,
+    fontFamily: "system-ui",
   },
 
   tagRow: {
     flexDirection: 'row',
-    marginTop: 10,
+    marginTop: 15,
   },
 
   tag: {
@@ -518,8 +573,7 @@ const styles = StyleSheet.create({
   },
 
   deadline: {
-    marginTop: 10,
-    fontSize: 12,
+marginTop: 15,    fontSize: 12,
   },
 
   buttonRow: {
