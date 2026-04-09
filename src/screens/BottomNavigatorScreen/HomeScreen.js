@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -6,138 +7,92 @@ import {
   StyleSheet,
   FlatList,
   Dimensions,
-  Image
+  Image,
+  ActivityIndicator,
+  TouchableOpacity,
+  Modal
 } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
-import { ActivityIndicator } from 'react-native';
 
-//COMPONENTS
 import AppHeader from '../../components/AppHeader/AppHeader';
 import HomeHeroSection from "../../components/HomeHeroSection/HomeHeroSection";
 import Footer from '../../components/Footer/Footer';
 
+
 //APIS
 import { getIndustries } from '../../api/industry/industryApi';
 import { getJobs } from '../../api/jobApi/jobApi';
+import { getCompanies } from '../../api/company/companyApi';
+import Fontisto from "react-native-vector-icons/Fontisto";
+
+import FontAwesome6 from "react-native-vector-icons/FontAwesome6";
+import Ionicons from "react-native-vector-icons/Ionicons";
+import { KeyboardAvoidingView, Platform } from 'react-native';
+
+
 
 const { width } = Dimensions.get('window');
 
+const HomeScreen = ({ navigation }) => {
 
+  const [industries, setIndustries] = useState([]);
+  const [jobs, setJobs] = useState([]);
+  const [companies, setCompanies] = useState([]);
 
+  const [loading, setLoading] = useState(true);
 
-// ================= DATA =================\\
-
-
-const JOBS = [
-  {
-    id: "1",
-    title: "Service Crew",
-    company: "McDonald's",
-    salary: "SAR 900 (BDT 29,700 approx.)",
-    allowance: "SAR 250 (BDT 8,250 approx.)",
-    location: "SAUDI ARABIA",
-    type: "OVERSEAS",
-    deadline: "7 April, 2026",
-  },
-  {
-    id: "2",
-    title: "Waiter",
-    company: "KFC",
-    salary: "SAR 850",
-    allowance: "SAR 200",
-    location: "SAUDI ARABIA",
-    type: "OVERSEAS",
-    deadline: "10 April, 2026",
-  },
-  {
-    id: "3",
-    title: "Cleaner",
-    company: "Al Baik",
-    salary: "SAR 700",
-    allowance: "SAR 150",
-    location: "SAUDI ARABIA",
-    type: "OVERSEAS",
-    deadline: "12 April, 2026",
-  },
-  {
-    id: "4",
-    title: "Driver",
-    company: "Uber",
-    salary: "SAR 1200",
-    allowance: "SAR 300",
-    location: "SAUDI ARABIA",
-    type: "OVERSEAS",
-    deadline: "15 April, 2026",
-  },
-];
-
-const COMPANIES = [
-  { id: "1", name: "HACC", jobs: 3 },
-  { id: "2", name: "IHIS Company", jobs: 2 },
-  { id: "3", name: "McDonald's", jobs: 4 },
-  { id: "4", name: "Jabco", jobs: 1 },
-  { id: "5", name: "KFC", jobs: 5 },
-  { id: "6", name: "Starbucks", jobs: 2 },
-];
-
-
-// ================= SCREEN ================= \\
-
-const HomeScreen = () => {
-
-  // const [showAllIndustries, setShowAllIndustries] = useState(false);
+  const [showAllIndustries, setShowAllIndustries] = useState(false);
   const [showAllJobs, setShowAllJobs] = useState(false);
   const [showAllCompanies, setShowAllCompanies] = useState(false);
-  const [industries, setIndustries] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [showAllIndustries, setShowAllIndustries] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
-  const [jobs, setJobs] = useState([]);
-  const [jobsLoading, setJobsLoading] = useState(false);
+  const SAR_TO_BDT = 33;
 
-  const displayedIndustries = showAllIndustries
-    ? industries
-    : industries.slice(0, 4);
-
-
-  const displayedJobs = showAllJobs
-    ? jobs
-    : jobs.slice(0, 4);
-  const companies = showAllCompanies ? COMPANIES : COMPANIES.slice(0, 4);
+  const convertToBDT = (amount) => {
+    if (!amount) return null;
+    return (amount * SAR_TO_BDT).toLocaleString();
+  };
 
 
 
 
+  //  SINGLE API CALL (OPTIMIZED)
+  useEffect(() => {
+    fetchAllData();
+  }, []);
 
-
-
-
-
-
-
-  const fetchIndustries = async () => {
+  const fetchAllData = async () => {
     try {
-      const data = await getIndustries();
-      console.log("Fetched Industries:", JSON.stringify(data, null, 2));
+      const [industryRes, jobRes, companyRes] = await Promise.all([
+        getIndustries(),
+        getJobs(),
+        getCompanies(),
+      ]);
 
-      setIndustries(data);
+      setIndustries(industryRes);
+
+      const jobList = jobRes?.data?.data || jobRes?.data || [];
+      setJobs(jobList);
+
+      setCompanies(companyRes);
+
     } catch (error) {
-      console.log(error);
+      console.log("API Error:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchIndustries();
-  }, []);
-
+  //  DISPLAY CONTROL
+  const displayedIndustries = showAllIndustries ? industries : industries.slice(0, 4);
+  const displayedJobs = showAllJobs ? jobs : jobs.slice(0, 4);
+  const displayedCompanies = showAllCompanies ? companies : companies.slice(0, 4);
 
 
   const renderIndustry = ({ item }) => {
     const imageUrl = `https://api.bhcjobs.com/storage/industry-image/${item.image}`;
 
     return (
+
       <View style={styles.card}>
 
         <Image
@@ -167,279 +122,288 @@ const HomeScreen = () => {
 
 
 
-  const fetchJobs = async () => {
-    try {
-      const data = await getJobs();
 
-      const jobList = data?.data?.data || data?.data || [];
-      console.log("Fetched Jobs:", JSON.stringify(jobList, null, 2));
-
-      setJobs(jobList);
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setJobsLoading(false); // ✅ MUST
-    }
-  };
-
-
-  useEffect(() => {
-    fetchJobs();
-  }, []);
-
-  // -------- JOB CARD -------- \\
-  // const JobCard = ({ item }) => (
-  //   <View style={styles.jobCard}>
-  //     <View style={styles.jobHeader}>
-  //       <Text style={styles.jobTitle}>{item.title}</Text>
-  //       <Text style={styles.star}>☆</Text>
-  //     </View>
-
-  //     <View style={styles.companyRow}>
-  //       <View style={styles.logoCircle}>
-  //         <Text>M</Text>
-  //       </View>
-  //       <Text style={styles.companyName}>{item.company}</Text>
-  //     </View>
-
-  //     <View style={styles.salaryBox}>
-  //       <Text style={styles.salaryText}>Salary: {item.salary}</Text>
-  //       <Text style={styles.salaryText}>Food Allowance: {item.allowance}</Text>
-  //     </View>
-
-  //     <View style={styles.tagRow}>
-  //       <View style={styles.tag}>
-  //         <Text style={styles.tagText}>{item.type}</Text>
-  //       </View>
-  //       <View style={styles.tag}>
-  //         <Text style={styles.tagText}>{item.location}</Text>
-  //       </View>
-  //     </View>
-
-  //     <Text style={styles.deadline}>
-  //       ⏰ Application Deadline: {item.deadline}
-  //     </Text>
-
-  //     <View style={styles.buttonRow}>
-  //       <View style={styles.viewBtn}>
-  //         <Text style={styles.viewText}>View</Text>
-  //       </View>
-  //       <View style={styles.applyBtn}>
-  //         <Text style={styles.applyText}>Apply Now</Text>
-  //       </View>
-  //     </View>
-  //   </View>
-  // ); 
-
-  // ================= JOB CARD =================
+  //  JOB CARD
   const JobCard = ({ item }) => {
-    // const logoUrl = `https://api.bhcjobs.com/storage/company-image/${item.image}`; 
-      const logoUrl = item.company?.image
-    ? `https://api.bhcjobs.com/storage/company-image/${item.company.image}`
-    : null;
+    const logoUrl = item.company?.image
+      ? `https://api.bhcjobs.com/storage/company-image/${item.company.image}`
+      : null;
 
     return (
       <View style={styles.jobCard}>
 
-        <View style={styles.jobHeader}>
-          <Text style={styles.jobTitle}>
-            {item.job_title}
-          </Text>
+        {/* <View style={styles.jobHeader}>
+          <View style={{ flex: 1, alignItems: 'center' }}>
+            <Text style={styles.jobTitle}>{item.job_title}</Text>
+          </View>
           <Text style={styles.star}>☆</Text>
+        </View> */}
+
+        <View style={styles.jobHeader}>
+
+          <View style={{ flex: 1, alignItems: 'center' }}>
+            <Text
+              style={styles.jobTitle}
+              numberOfLines={2}
+              ellipsizeMode="tail"
+            >
+              {item.job_title}
+            </Text>
+          </View>
+
+          <Text style={styles.star}>☆</Text>
+
         </View>
 
         <View style={styles.companyRow}>
-          <Image
-            source={
-              item.company?.image
-                ? { uri: logoUrl }
-                : { uri: "https://via.placeholder.com/40" }
-            }
-            style={styles.logoCircle}
-          />
-
-          {/* <View style={styles.logoCircle}>
-            {item.image ? (
-              <Image
-                source={{
-                  uri: `https://api.bhcjobs.com/storage/company-image/${item.image}`,
-                }}
-                style={{ width: 35, height: 35, borderRadius: 20 }}
-                resizeMode="cover"
-              />
-            ) : (
-              <Text style={{ fontWeight: "bold" }}>
-                {item.company?.charAt(0)}
-              </Text>
-            
-            )}
-          </View> */}
-          
-          <Text style={styles.companyName}>
-            {item.company_name}
-          </Text>
+          {logoUrl ? (
+            <Image source={{ uri: logoUrl }} style={styles.logoCircle} />
+          ) : (
+            <View style={styles.logoCircle}>
+              <Text>{item.company_name?.charAt(0)}</Text>
+            </View>
+          )}
+          <Text style={styles.companyName}>{item.company_name}</Text>
         </View>
 
         <View style={styles.salaryBox}>
           <Text style={styles.salaryText}>
             Salary: {item.currency} {item.min_salary}
+            {item.min_salary && (
+              ` (BDT ${convertToBDT(item.min_salary)} approx.)`
+            )}
           </Text>
-          <Text style={styles.salaryText}>
-            Food Allowance: {item.currency} {item.food_amount}
-          </Text>
+
+          {item.food_amount ? (
+            <Text style={styles.salaryText}>
+              Food Allowance: {item.currency} {item.food_amount}
+              {` (BDT ${convertToBDT(item.food_amount)} approx.)`}
+            </Text>
+          ) : null}
         </View>
 
-        <View style={styles.tagRow}>
+        {/* <View style={styles.tagRow}>
           <View style={styles.tag}>
-            <Text style={styles.tagText}>
-              {item.type?.toUpperCase()}
-            </Text>
+            <Text style={styles.tagText}>{item.type?.toUpperCase()}</Text>
           </View>
           <View style={styles.tag}>
             <Text style={styles.tagText}>
               {item.country?.name?.toUpperCase()}
             </Text>
           </View>
+        </View> */}
+
+        <View style={styles.tagRow}>
+
+          <View style={styles.tag}>
+            <FontAwesome6 name="briefcase" size={12} color="#4A90E2" />
+            <Text style={styles.tagText}>
+              {" "}{item.type?.toUpperCase()}
+            </Text>
+          </View>
+
+          <View style={styles.tag}>
+            <Ionicons name="location-sharp" size={12} color="#4A90E2" />
+            <Text style={styles.tagText}>
+              {" "}{item.country?.name?.toUpperCase()}
+            </Text>
+          </View>
+
         </View>
 
-        <Text style={styles.deadline}>
-          ⏰ Application Deadline:{" "}
-          {new Date(item.expiry).toDateString()}
-        </Text>
+
+        <View style={styles.deadlineRow}>
+          <Fontisto name="clock" size={14} color="red" />
+
+          <Text style={styles.deadlineText}>
+            {" "}Application Deadline:{" "}
+            {new Date(item.expiry).toDateString()}
+          </Text>
+        </View>
 
         <View style={styles.buttonRow}>
-          <View style={styles.viewBtn}>
+
+          <TouchableOpacity style={styles.viewBtn}>
             <Text style={styles.viewText}>View</Text>
-          </View>
-          <View style={styles.applyBtn}>
-            <Text style={styles.applyText}>Apply Now</Text>
-          </View>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.applyBtn}
+            onPress={() => setShowLoginModal(true)}
+          >
+            <Text style={styles.applyText}
+
+            >Apply Now</Text>
+          </TouchableOpacity>
         </View>
 
       </View>
     );
   };
 
+  //  COMPANY CARD
+  const renderCompany = ({ item }) => {
+    const logoUrl = `https://api.bhcjobs.com/storage/company-image/${item.image}`;
 
-  // -------- COMPANY CARD --------
-  const renderCompany = ({ item }) => (
-    <View style={styles.companyCard}>
-      <View style={styles.companyLogo}>
-        <Text>{item.name.charAt(0)}</Text>
+    return (
+      <View style={styles.companyCard}>
+        <Image source={{ uri: logoUrl }} style={styles.companyLogo} />
+        <Text style={styles.companyTitle} numberOfLines={1}>
+          {item.name}
+        </Text>
+        <Text style={styles.companySub}>
+          {item.jobs_count} Available Jobs
+        </Text>
       </View>
-      <Text style={styles.companyTitle}>{item.name}</Text>
-      <Text style={styles.companySub}>{item.jobs} Available Jobs</Text>
-    </View>
-  );
-
+    );
+  };
 
   return (
-
     <>
       <AppHeader />
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={20}
+      >
+        <ScrollView showsVerticalScrollIndicator={false}
+          contentContainerStyle={{
+            paddingBottom: 20, 
+          }}
+          keyboardShouldPersistTaps="handled"
+        >
+          <HomeHeroSection />
 
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <HomeHeroSection />
-        <View style={styles.container}>
-
-          <View style={styles.titleWrapper}>
-            <Text style={styles.title}>Popular Industries</Text>
-          </View>
-
-          {loading ? (
-            <View style={styles.loaderWrapper}>
-              <ActivityIndicator size="small" color="#4A90E2" />
+          {/* INDUSTRIES */}
+          <View style={styles.section}>
+            <View style={styles.titleWrapper}>
+              <Text style={styles.title}>Popular Industries</Text>
             </View>
-          ) : (
-            <FlatList
-              data={displayedIndustries}
-              numColumns={2}
-              renderItem={renderIndustry}
-              keyExtractor={(item) => item.id.toString()}
-              columnWrapperStyle={{ justifyContent: 'space-between' }}
-              scrollEnabled={false}
-            />
-          )}
-          <Text style={styles.toggleBtn} onPress={() => setShowAllIndustries(!showAllIndustries)}>
-            {showAllIndustries ? "▲" : "▼"}
-          </Text>
-        </View>
 
-        {/* JOBS */}
-        {/* <View style={styles.section}>
-          <View style={styles.titleWrapper}>
-            <Text style={styles.title}>Recommended Jobs</Text>
+            {loading ? (
+              <ActivityIndicator color="#4A90E2" />
+            ) : (
+              <FlatList
+                data={displayedIndustries}
+                numColumns={2}
+                renderItem={renderIndustry}
+                keyExtractor={(item) => item.id.toString()}
+                columnWrapperStyle={{ justifyContent: 'space-between' }}
+                scrollEnabled={false}
+              />
+            )}
+
+            <Text style={styles.toggleBtn} onPress={() => setShowAllIndustries(!showAllIndustries)}>
+              {showAllIndustries ? "▲" : "▼"}
+            </Text>
           </View>
 
-          <FlatList
-            data={jobs}
-            renderItem={({ item }) => <JobCard item={item} />}
-            keyExtractor={(item) => item.id}
-            scrollEnabled={false}
-          />
+          {/* JOBS */}
+          <View style={styles.section}>
+            <View style={styles.titleWrapper}>
+              <Text style={styles.title}>Recommended Jobs</Text>
+            </View>
 
-          <Text style={styles.toggleBtn} onPress={() => setShowAllJobs(!showAllJobs)}>
-            {showAllJobs ? "▲" : "▼"}
-          </Text>
-        </View> */}
-        {/* JOBS */}
+            {loading ? (
+              <ActivityIndicator color="#4A90E2" />
+            ) : (
+              <FlatList
+                data={displayedJobs}
+                renderItem={({ item }) => <JobCard item={item} />}
+                keyExtractor={(item) => item.id.toString()}
+                scrollEnabled={false}
+              />
+            )}
 
-
-
-
-        <View style={styles.section}>
-          <View style={styles.titleWrapper}>
-            <Text style={styles.title}>Recommended Jobs</Text>
-          </View>
-          {jobsLoading ? (
-            <ActivityIndicator size="small" color="#4A90E2" />
-          ) : (
-            <FlatList
-              data={displayedJobs}
-              renderItem={({ item }) => <JobCard item={item} />}
-              keyExtractor={(item) => item.id.toString()}
-              scrollEnabled={false}
-            />
-          )}
-          <Text
-            style={styles.toggleBtn}
-            onPress={() => setShowAllJobs(!showAllJobs)}
-          >
-            {showAllJobs ? "▲" : "▼"}
-          </Text>
-        </View>
-
-        {/* COMPANIES */}
-        <View style={styles.section}>
-          <View style={styles.titleWrapper}>
-            <Text style={styles.title}>Popular Companies</Text>
+            <Text style={styles.toggleBtn} onPress={() => setShowAllJobs(!showAllJobs)}>
+              {showAllJobs ? "▲" : "▼"}
+            </Text>
           </View>
 
-          <FlatList
-            data={companies}
-            numColumns={2}
-            renderItem={renderCompany}
-            keyExtractor={(item) => item.id}
-            columnWrapperStyle={{ justifyContent: 'space-between' }}
-            scrollEnabled={false}
-          />
+          {/* COMPANIES */}
+          <View style={styles.section}>
+            <View style={styles.titleWrapper}>
+              <Text style={styles.title}>Popular Companies</Text>
+            </View>
 
-          <Text style={styles.toggleBtn} onPress={() => setShowAllCompanies(!showAllCompanies)}>
-            {showAllCompanies ? "▲" : "▼"}
-          </Text>
+            {loading ? (
+              <ActivityIndicator color="#4A90E2" />
+            ) : (
+              <FlatList
+                data={displayedCompanies}
+                numColumns={2}
+                renderItem={renderCompany}
+                keyExtractor={(item) => item.id.toString()}
+                columnWrapperStyle={{ justifyContent: 'space-between' }}
+                scrollEnabled={false}
+              />
+            )}
+
+            <Text style={styles.toggleBtn} onPress={() => setShowAllCompanies(!showAllCompanies)}>
+              {showAllCompanies ? "▲" : "▼"}
+            </Text>
+          </View>
+          <View style={{ height: 20 }} />
+          <Footer />
+        </ScrollView>
+      </KeyboardAvoidingView>
+
+
+      <Modal
+        visible={showLoginModal}
+        transparent
+        animationType="fade"
+      >
+        <View style={styles.modalOverlay}>
+
+          <View style={styles.modalContainer}>
+
+            {/* Close Button */}
+            <TouchableOpacity
+              style={styles.closeBtn}
+              onPress={() => setShowLoginModal(false)}
+            >
+              <Ionicons name="close" size={18} color="#4A90E2" />
+            </TouchableOpacity>
+
+            {/* Title */}
+            <Text style={styles.modalTitle}>
+              Please log in First
+            </Text>
+
+            {/* Subtitle */}
+            <Text style={styles.modalSub}>
+              You must be logged in to apply for this job.
+            </Text>
+
+            {/* Login Button */}
+            <TouchableOpacity style={styles.loginBtn}
+              onPress={() => {
+                setShowLoginModal(false);
+                navigation.navigate("Login");
+              }}
+            >
+              <Text style={styles.loginText}>Go to Login</Text>
+            </TouchableOpacity>
+
+            {/* Cancel Button */}
+            <TouchableOpacity
+              style={styles.cancelBtn}
+              onPress={() => setShowLoginModal(false)}
+            >
+              <Text style={styles.cancelText}>Cancel</Text>
+            </TouchableOpacity>
+
+          </View>
+
         </View>
-
-
-      </ScrollView>
+      </Modal>
     </>
   );
 };
 
 export default HomeScreen;
 
-
 // ============= STYLES ================= \\
-
 const styles = StyleSheet.create({
 
   container: {
@@ -509,13 +473,21 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
 
+  // jobTitle: {
+  //   fontSize: 18,
+  //   fontWeight: "bold",
+  //   fontFamily: "Poppins-Bold",
+  //   textAlign: 'center',
+  //   flex: 1,
+  // },
+
   jobTitle: {
-    // fontWeight: '700',
-    // fontFamily: "Poppins-Bold", 
+    fontSize: 18,
     fontWeight: '700',
     fontFamily: "Poppins-Bold",
     textAlign: 'center',
-    flex: 1,
+    paddingHorizontal: 10,
+    lineHeight: 20,
   },
 
   star: {
@@ -532,20 +504,22 @@ const styles = StyleSheet.create({
 
 
   logoCircle: {
-  width: 50,
-  height: 50,
-  borderRadius: 25,
-  backgroundColor: '#fff',
-  elevation: 3,
-},
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#fff',
+    elevation: 3,
+  },
 
   companyName: {
     marginLeft: 10,
+    fontSize: 14,
+    fontWeight: "bold",
   },
 
   salaryBox: {
     backgroundColor: '#EAF2FF',
-    padding: 10,
+    padding: 15,
     borderRadius: 8,
     marginTop: 18,
   },
@@ -553,6 +527,7 @@ const styles = StyleSheet.create({
   salaryText: {
     fontSize: 12,
     fontFamily: "system-ui",
+    fontWeight: "bold"
   },
 
   tagRow: {
@@ -560,20 +535,46 @@ const styles = StyleSheet.create({
     marginTop: 15,
   },
 
+  // tag: {
+  //   backgroundColor: '#F0F3F7',
+  //   paddingHorizontal: 10,
+  //   paddingVertical: 4,
+  //   borderRadius: 6,
+  //   marginRight: 8,
+  // }, 
+
   tag: {
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: '#F0F3F7',
     paddingHorizontal: 10,
-    paddingVertical: 4,
+    paddingVertical: 5,
     borderRadius: 6,
     marginRight: 8,
   },
 
   tagText: {
     fontSize: 11,
+    fontFamily: "system-ui",
+    fontWeight: "bold"
   },
 
-  deadline: {
-marginTop: 15,    fontSize: 12,
+  // deadline: {
+  //   marginTop: 15,
+  //   fontSize: 12,
+  // }, 
+
+  deadlineRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 10,
+  },
+
+  deadlineText: {
+    fontSize: 12,
+    fontWeight: "600",
+    marginLeft: 5,
+    color: "#333",
   },
 
   buttonRow: {
@@ -648,13 +649,70 @@ marginTop: 15,    fontSize: 12,
     color: '#4A90E2',
     marginTop: 10,
   },
+  //modal
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 
+  modalContainer: {
+    width: '85%',
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 20,
+    alignItems: 'center',
+  },
+
+  closeBtn: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    backgroundColor: '#EAF2FF',
+    padding: 6,
+    borderRadius: 20,
+  },
+
+  modalTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    marginTop: 10,
+  },
+
+  modalSub: {
+    fontSize: 13,
+    color: '#666',
+    textAlign: 'center',
+    marginVertical: 10,
+  },
+
+  loginBtn: {
+    backgroundColor: '#4A90E2',
+    width: '100%',
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+
+  loginText: {
+    color: '#fff',
+    fontWeight: '600',
+  },
+
+  cancelBtn: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    width: '100%',
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+
+  cancelText: {
+    color: '#333',
+  },
 });
 
-
-
-// https://dev.bhcjobs.com/api/job/get
-
-// https://dev.bhcjobs.com/api/company/get
-
-//job_title ,company_name ,food_amount

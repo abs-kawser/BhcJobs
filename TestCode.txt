@@ -1,0 +1,399 @@
+// import React, { useState, useEffect } from 'react';
+// import {
+//   View,
+//   ScrollView,
+//   Text,
+//   StyleSheet,
+//   FlatList,
+//   Dimensions,
+//   Image
+// } from 'react-native';
+// import Icon from 'react-native-vector-icons/Ionicons';
+// import { ActivityIndicator } from 'react-native';
+
+// //COMPONENTS
+// import AppHeader from '../../components/AppHeader/AppHeader';
+// import HomeHeroSection from "../../components/HomeHeroSection/HomeHeroSection";
+// import Footer from '../../components/Footer/Footer';
+
+// //APIS
+// import { getIndustries } from '../../api/industry/industryApi';
+// import { getJobs } from '../../api/jobApi/jobApi';
+// import { getCompanies } from '../../api/company/companyApi';
+
+
+// const { width } = Dimensions.get('window');
+
+
+
+// // ================= SCREEN ================= \\
+
+// const HomeScreen = () => {
+
+//   const [industries, setIndustries] = useState([]);
+//   const [loading, setLoading] = useState(true);
+//   const [showAllIndustries, setShowAllIndustries] = useState(false);
+
+//   const [jobs, setJobs] = useState([]);
+//   const [jobsLoading, setJobsLoading] = useState(false);
+//   const [showAllJobs, setShowAllJobs] = useState(false);
+
+
+
+//   const [companies, setCompanies] = useState([]);
+//   const [companyLoading, setCompanyLoading] = useState(true);
+//   const [showAllCompanies, setShowAllCompanies] = useState(false);
+
+
+//   const displayedIndustries = showAllIndustries
+//     ? industries
+//     : industries.slice(0, 4);
+
+
+//   const displayedJobs = showAllJobs
+//     ? jobs
+//     : jobs.slice(0, 4);
+
+//   const displayedCompanies = showAllCompanies
+//     ? companies
+//     : companies.slice(0, 4);
+
+
+
+
+
+
+//   const fetchIndustries = async () => {
+//     try {
+//       const data = await getIndustries();
+//       console.log("Fetched Industries:", JSON.stringify(data, null, 2));
+
+//       setIndustries(data);
+//     } catch (error) {
+//       console.log(error);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   useEffect(() => {
+//     fetchIndustries();
+//   }, []);
+
+
+
+//   const renderIndustry = ({ item }) => {
+//     const imageUrl = `https://api.bhcjobs.com/storage/industry-image/${item.image}`;
+
+//     return (
+//       <View style={styles.card}>
+
+//         <Image
+//           source={{ uri: imageUrl }}
+//           style={{ width: 40, height: 40 }}
+//           resizeMode="contain"
+//         />
+
+//         <Text
+//           style={styles.cardTitle}
+//           numberOfLines={1}
+//           ellipsizeMode="tail"
+//         >
+//           {item.name}
+//         </Text>
+
+//         <Text style={styles.cardSub}>
+//           {item.jobs_count} Available Jobs
+//         </Text>
+//       </View>
+//     );
+//   };
+
+
+
+//   const fetchJobs = async () => {
+//     try {
+//       const data = await getJobs();
+
+//       const jobList = data?.data?.data || data?.data || [];
+//       console.log("Fetched Jobs:", JSON.stringify(jobList, null, 2));
+
+//       setJobs(jobList);
+//     } catch (error) {
+//       console.log(error);
+//     } finally {
+//       setJobsLoading(false); 
+//     }
+//   };
+
+
+//   useEffect(() => {
+//     fetchJobs();
+//   }, []);
+
+//   // -------- JOB CARD -------- \\
+//   // const JobCard = ({ item }) => (
+//   //   <View style={styles.jobCard}>
+//   //     <View style={styles.jobHeader}>
+//   //       <Text style={styles.jobTitle}>{item.title}</Text>
+//   //       <Text style={styles.star}>☆</Text>
+//   //     </View>
+
+//   //     <View style={styles.companyRow}>
+//   //       <View style={styles.logoCircle}>
+//   //         <Text>M</Text>
+//   //       </View>
+//   //       <Text style={styles.companyName}>{item.company}</Text>
+//   //     </View>
+
+//   //     <View style={styles.salaryBox}>
+//   //       <Text style={styles.salaryText}>Salary: {item.salary}</Text>
+//   //       <Text style={styles.salaryText}>Food Allowance: {item.allowance}</Text>
+//   //     </View>
+
+//   //     <View style={styles.tagRow}>
+//   //       <View style={styles.tag}>
+//   //         <Text style={styles.tagText}>{item.type}</Text>
+//   //       </View>
+//   //       <View style={styles.tag}>
+//   //         <Text style={styles.tagText}>{item.location}</Text>
+//   //       </View>
+//   //     </View>
+
+//   //     <Text style={styles.deadline}>
+//   //       ⏰ Application Deadline: {item.deadline}
+//   //     </Text>
+
+//   //     <View style={styles.buttonRow}>
+//   //       <View style={styles.viewBtn}>
+//   //         <Text style={styles.viewText}>View</Text>
+//   //       </View>
+//   //       <View style={styles.applyBtn}>
+//   //         <Text style={styles.applyText}>Apply Now</Text>
+//   //       </View>
+//   //     </View>
+//   //   </View>
+//   // ); 
+
+//   // ================= JOB CARD =================\\
+
+//   const JobCard = ({ item }) => {
+//     // const logoUrl = `https://api.bhcjobs.com/storage/company-image/${item.image}`; 
+//     const logoUrl = item.company?.image
+//       ? `https://api.bhcjobs.com/storage/company-image/${item.company.image}`
+//       : null;
+
+//     return (
+//       <View style={styles.jobCard}>
+
+//         <View style={styles.jobHeader}>
+//           <Text style={styles.jobTitle}>
+//             {item.job_title}
+//           </Text>
+//           <Text style={styles.star}>☆</Text>
+//         </View>
+
+//         <View style={styles.companyRow}>
+//           <Image
+//             source={
+//               item.company?.image
+//                 ? { uri: logoUrl }
+//                 : { uri: "https://via.placeholder.com/40" }
+//             }
+//             style={styles.logoCircle}
+//           />
+
+//           {/* <View style={styles.logoCircle}>
+//             {item.image ? (
+//               <Image
+//                 source={{
+//                   uri: `https://api.bhcjobs.com/storage/company-image/${item.image}`,
+//                 }}
+//                 style={{ width: 35, height: 35, borderRadius: 20 }}
+//                 resizeMode="cover"
+//               />
+//             ) : (
+//               <Text style={{ fontWeight: "bold" }}>
+//                 {item.company?.charAt(0)}
+//               </Text>
+
+//             )}
+//           </View> */}
+
+//           <Text style={styles.companyName}>
+//             {item.company_name}
+//           </Text>
+//         </View>
+
+//         <View style={styles.salaryBox}>
+//           <Text style={styles.salaryText}>
+//             Salary: {item.currency} {item.min_salary}
+//           </Text>
+//           <Text style={styles.salaryText}>
+//             Food Allowance: {item.currency} {item.food_amount}
+//           </Text>
+//         </View>
+
+//         <View style={styles.tagRow}>
+//           <View style={styles.tag}>
+//             <Text style={styles.tagText}>
+//               {item.type?.toUpperCase()}
+//             </Text>
+//           </View>
+//           <View style={styles.tag}>
+//             <Text style={styles.tagText}>
+//               {item.country?.name?.toUpperCase()}
+//             </Text>
+//           </View>
+//         </View>
+
+//         <Text style={styles.deadline}>
+//           ⏰ Application Deadline:{" "}
+//           {new Date(item.expiry).toDateString()}
+//         </Text>
+
+//         <View style={styles.buttonRow}>
+//           <View style={styles.viewBtn}>
+//             <Text style={styles.viewText}>View</Text>
+//           </View>
+//           <View style={styles.applyBtn}>
+//             <Text style={styles.applyText}>Apply Now</Text>
+//           </View>
+//         </View>
+
+//       </View>
+//     );
+//   };
+
+
+//   // -------- COMPANY CARD --------\\
+//   useEffect(() => {
+//     fetchCompanies();
+//   }, []);
+
+//   const fetchCompanies = async () => {
+//     try {
+//       const data = await getCompanies();
+//       console.log("Fetched Companies:", JSON.stringify(data, null, 2));
+//       setCompanies(data);
+//     } catch (error) {
+//       console.log(error);
+//     } finally {
+//       setCompanyLoading(false);
+//     }
+//   };
+
+
+
+//   const renderCompany = ({ item }) => {
+//     const logoUrl = `https://api.bhcjobs.com/storage/company-image/${item.image}`;
+
+//     return (
+//       <View style={styles.companyCard}>
+
+//         <Image
+//           source={{ uri: logoUrl }}
+//           style={styles.companyLogo}
+//           resizeMode="cover"
+//         />
+
+//         <Text style={styles.companyTitle} numberOfLines={1}>
+//           {item.name}
+//         </Text>
+
+//         <Text style={styles.companySub}>
+//           {item.jobs_count} Available Jobs
+//         </Text>
+
+//       </View>
+//     );
+//   };
+
+//   return (
+
+//     <>
+//       <AppHeader />
+
+//       <ScrollView showsVerticalScrollIndicator={false}>
+//         <HomeHeroSection />
+//         <View style={styles.container}>
+
+//           <View style={styles.titleWrapper}>
+//             <Text style={styles.title}>Popular Industries</Text>
+//           </View>
+
+//           {loading ? (
+//             <View style={styles.loaderWrapper}>
+//               <ActivityIndicator size="small" color="#4A90E2" />
+//             </View>
+//           ) : (
+//             <FlatList
+//               data={displayedIndustries}
+//               numColumns={2}
+//               renderItem={renderIndustry}
+//               keyExtractor={(item) => item.id.toString()}
+//               columnWrapperStyle={{ justifyContent: 'space-between' }}
+//               scrollEnabled={false}
+//             />
+//           )}
+//           <Text style={styles.toggleBtn} onPress={() => setShowAllIndustries(!showAllIndustries)}>
+//             {showAllIndustries ? "▲" : "▼"}
+//           </Text>
+//         </View>
+
+//         <View style={styles.section}>
+//           <View style={styles.titleWrapper}>
+//             <Text style={styles.title}>Recommended Jobs</Text>
+//           </View>
+//           {jobsLoading ? (
+//             <ActivityIndicator size="small" color="#4A90E2" />
+//           ) : (
+//             <FlatList
+//               data={displayedJobs}
+//               renderItem={({ item }) => <JobCard item={item} />}
+//               keyExtractor={(item) => item.id.toString()}
+//               scrollEnabled={false}
+//             />
+//           )}
+//           <Text
+//             style={styles.toggleBtn}
+//             onPress={() => setShowAllJobs(!showAllJobs)}
+//           >
+//             {showAllJobs ? "▲" : "▼"}
+//           </Text>
+//         </View>
+
+//         {/* COMPANIES */}
+//         <View style={styles.section}>
+//           <View style={styles.titleWrapper}>
+//             <Text style={styles.title}>Popular Companies</Text>
+//           </View>
+
+//           {companyLoading ? (
+//             <View style={styles.loaderWrapper}>
+//               <ActivityIndicator size="small" color="#4A90E2" />
+//             </View>
+//           ) : (
+//             <FlatList
+//               data={displayedCompanies}
+//               numColumns={2}
+//               renderItem={renderCompany}
+//               keyExtractor={(item) => item.id.toString()}
+//               columnWrapperStyle={{ justifyContent: 'space-between' }}
+//               scrollEnabled={false}
+//             />
+//           )}
+
+//           <Text
+//             style={styles.toggleBtn}
+//             onPress={() => setShowAllCompanies(!showAllCompanies)}
+//           >
+//             {showAllCompanies ? "▲" : "▼"}
+//           </Text>
+//         </View>
+//       </ScrollView>
+//     </>
+//   );
+// };
+
+// export default HomeScreen; 

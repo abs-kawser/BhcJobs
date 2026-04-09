@@ -19,7 +19,7 @@ const BottomNavigator = () => {
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
-
+        tabBarHideOnKeyboard: true,
         tabBarActiveTintColor: '#2563EB',
         tabBarInactiveTintColor: 'gray',
 

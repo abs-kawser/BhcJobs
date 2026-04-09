@@ -4,6 +4,8 @@ import { NavigationContainer } from '@react-navigation/native';
 
 // Bottom Tab Navigator import
 import BottomTabNavigator from '../BottomNavigator/bottomNavigator';
+import LoginScreen from '../../screens/Auth/LoginScreen';
+import RegisterScreen from '../../screens/Auth/RegisterScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -20,6 +22,15 @@ const StackNavigator = () => {
             <Stack.Screen
                 name="Main"
                 component={BottomTabNavigator}
+            />
+
+            <Stack.Screen
+                name="Login"
+                component={LoginScreen}
+            />
+            <Stack.Screen
+                name="Register"
+                component={RegisterScreen}
             />
 
         </Stack.Navigator>
