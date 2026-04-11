@@ -35,9 +35,10 @@
 //     return {
 //       d: `
 //         M0 0
-//         L0 200
+//         L0 280
 //         Q ${width * 0.25 + offset} 150, ${width * 0.5 + offset} 200
 //         T ${width} 200
+//         L ${width} 280
 //         L ${width} 0
 //         Z
 //       `,
@@ -46,16 +47,18 @@
 
 //   return (
 //     <View style={styles.container}>
-      
+
 //       {/* Wave Background */}
-//       <Svg width={width} height={220} style={styles.wave}>
+//       <Svg width={width} height={500} style={styles.wave}>
 //         <AnimatedPath animatedProps={animatedProps} fill="#4A90E2" />
 //       </Svg>
 
 //       {/* Content */}
 //       <View style={styles.content}>
-        
-//         <Text style={styles.title}>
+
+
+//           <View>
+//  <Text style={styles.title}>
 //           #1 Platform for Saudi Jobs
 //         </Text>
 
@@ -63,6 +66,9 @@
 //           Apply for jobs in Saudi Arabia with verified employers.
 //           We connect Bangladeshi workforce with high-demand Saudi Jobs.
 //         </Text>
+//           </View>
+ 
+       
 
 //         <View style={styles.searchContainer}>
 //           <TextInput
@@ -81,15 +87,15 @@
 //   );
 // };
 
-// export default HomeHeroSection; 
+// export default HomeHeroSection;
 
 // const styles = StyleSheet.create({
 //   container: {
-//     // backgroundColor: "#c2cedb",
-//     paddingTop: 80,
-//     paddingBottom: 60, // 👈 search পর্যন্ত cover করবে
+//     paddingTop: 30,
+//     paddingBottom: 80,
 //     alignItems: "center",
-//     // overflow: "hidden", // 👈 extra wave hide
+//     overflow: "hidden",
+//     minHeight: 280,
 //   },
 
 //   wave: {
@@ -142,15 +148,14 @@
 //   },
 // }); 
 
-// //========================================\\ 
-
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
   TextInput,
   StyleSheet,
   Dimensions,
+  LayoutChangeEvent,
 } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import Animated, {
@@ -166,10 +171,11 @@ const AnimatedPath = Animated.createAnimatedComponent(Path);
 
 const HomeHeroSection = () => {
   const progress = useSharedValue(0);
+  const [containerHeight, setContainerHeight] = useState(320);
 
   useEffect(() => {
     progress.value = withRepeat(
-      withTiming(1, { duration: 2500 }),
+      withTiming(1, { duration: 1000 }),
       -1,
       true
     );
@@ -177,44 +183,51 @@ const HomeHeroSection = () => {
 
   const animatedProps = useAnimatedProps(() => {
     const offset = progress.value * 25;
+    const waveY = containerHeight * 0.72;
 
     return {
       d: `
         M0 0
-        L0 280
-        Q ${width * 0.25 + offset} 150, ${width * 0.5 + offset} 200
-        T ${width} 200
-        L ${width} 280
+        L0 ${containerHeight}
+        Q ${width * 0.25 + offset} ${waveY}, ${width * 0.5 + offset} ${waveY + 30}
+        T ${width} ${waveY + 30}
+        L ${width} ${containerHeight}
         L ${width} 0
         Z
       `,
     };
   });
 
-  return (
-    <View style={styles.container}>
+  const handleLayout = (e: LayoutChangeEvent) => {
+    const { height } = e.nativeEvent.layout;
+    if (height > 0) setContainerHeight(height);
+  };
 
-      {/* Wave Background */}
-      <Svg width={width} height={380} style={styles.wave}>
+  return (
+    <View style={styles.container} onLayout={handleLayout}>
+
+      {/* Wave Background — exact container size */}
+      <Svg
+        width={width}
+        height={containerHeight}
+        style={StyleSheet.absoluteFillObject}
+      >
         <AnimatedPath animatedProps={animatedProps} fill="#4A90E2" />
       </Svg>
 
       {/* Content */}
       <View style={styles.content}>
 
+        <View>
+          <Text style={styles.title}>
+            #1 Platform for Saudi Jobs
+          </Text>
 
-          <View>
- <Text style={styles.title}>
-          #1 Platform for Saudi Jobs
-        </Text>
-
-        <Text style={styles.subtitle}>
-          Apply for jobs in Saudi Arabia with verified employers.
-          We connect Bangladeshi workforce with high-demand Saudi Jobs.
-        </Text>
-          </View>
- 
-       
+          <Text style={styles.subtitle}>
+            Apply for jobs in Saudi Arabia with verified employers.
+            We connect Bangladeshi workforce with high-demand Saudi Jobs.
+          </Text>
+        </View>
 
         <View style={styles.searchContainer}>
           <TextInput
@@ -222,7 +235,6 @@ const HomeHeroSection = () => {
             placeholderTextColor="#999"
             style={styles.input}
           />
-
           <View style={styles.iconBox}>
             <Icon name="search" size={18} color="#fff" />
           </View>
@@ -240,20 +252,13 @@ const styles = StyleSheet.create({
     paddingTop: 30,
     paddingBottom: 80,
     alignItems: "center",
-    overflow: "hidden",
-    minHeight: 280,
-  },
-
-  wave: {
-    position: "absolute",
-    top: 0,
-    left: 0,
   },
 
   content: {
     width: "100%",
     alignItems: "center",
     paddingHorizontal: 20,
+    zIndex: 1,
   },
 
   title: {

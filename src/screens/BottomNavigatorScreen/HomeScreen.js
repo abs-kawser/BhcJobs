@@ -10,8 +10,11 @@ import {
   Image,
   ActivityIndicator,
   TouchableOpacity,
-  Modal
+  Modal,
+  StatusBar
 } from 'react-native';
+
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import AppHeader from '../../components/AppHeader/AppHeader';
 import HomeHeroSection from "../../components/HomeHeroSection/HomeHeroSection";
@@ -33,6 +36,7 @@ import { KeyboardAvoidingView, Platform } from 'react-native';
 const { width } = Dimensions.get('window');
 
 const HomeScreen = ({ navigation }) => {
+const insets = useSafeAreaInsets();
 
   const [industries, setIndustries] = useState([]);
   const [jobs, setJobs] = useState([]);
@@ -259,6 +263,11 @@ const HomeScreen = ({ navigation }) => {
 
   return (
     <>
+     <StatusBar
+        barStyle="light-content"
+        backgroundColor="transparent"
+        translucent={true}
+      />
       <AppHeader />
       <KeyboardAvoidingView
         style={{ flex: 1 }}
@@ -267,7 +276,7 @@ const HomeScreen = ({ navigation }) => {
       >
         <ScrollView showsVerticalScrollIndicator={false}
           contentContainerStyle={{
-            paddingBottom: 20, 
+            // paddingBottom: 20, 
           }}
           keyboardShouldPersistTaps="handled"
         >

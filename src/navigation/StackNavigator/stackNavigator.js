@@ -6,36 +6,50 @@ import { NavigationContainer } from '@react-navigation/native';
 import BottomTabNavigator from '../BottomNavigator/bottomNavigator';
 import LoginScreen from '../../screens/Auth/LoginScreen';
 import RegisterScreen from '../../screens/Auth/RegisterScreen';
+import VerifyScreen from '../../screens/Auth/VerifyScreen'
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+
 
 const Stack = createNativeStackNavigator();
 
 const StackNavigator = () => {
 
     return (
-    // <NavigationContainer> </NavigationContainer>
-        <Stack.Navigator
-            screenOptions={{
-                headerShown: false,
-            }}
-        >
-            {/* First Screen */}
-            <Stack.Screen
-                name="Main"
-                component={BottomTabNavigator}
-            />
+        // <NavigationContainer> </NavigationContainer>
 
-            <Stack.Screen
-                name="Login"
-                component={LoginScreen}
-            />
-            <Stack.Screen
-                name="Register"
-                component={RegisterScreen}
-            />
+        <SafeAreaView style={{ flex: 1 }}>
+            <Stack.Navigator
+                screenOptions={{
+                    headerShown: false,
+                }}
+            >
+                {/* First Screen */}
+                <Stack.Screen
+                    name="Main"
+                    component={BottomTabNavigator}
+                />
 
-        </Stack.Navigator>
- 
-    );};
+                <Stack.Screen
+                    name="Login"
+                    component={LoginScreen}
+                />
+                <Stack.Screen
+                    name="Register"
+                    component={RegisterScreen}
+                />
 
-export default StackNavigator ;  
+                <Stack.Screen
+                 name="Verify"
+                 component={VerifyScreen}
+                 
+                />
+
+            </Stack.Navigator>
+        </SafeAreaView>
+
+    );
+};
+
+export default StackNavigator;
 

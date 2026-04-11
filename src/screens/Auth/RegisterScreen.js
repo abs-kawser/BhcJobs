@@ -6,94 +6,182 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  ActivityIndicator,
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
+import { registerUser } from "../../api/auth/authApi";
 
-const RegisterScreen = () => {
+const RegisterScreen = ({ navigation }) => {
 
   const [showPass, setShowPass] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [checked, setChecked] = useState(true);
+  const [loading, setLoading] = useState(false);
+
+  const [form, setForm] = useState({
+    name: "",
+    phone: "",
+    email: "",
+    password: "",
+    confirm_password: "",
+    passport_number: "",
+    dob: "",
+    gender: "",
+  });
+
+  const handleChange = (key, value) => {
+    setForm({ ...form, [key]: value });
+  };
+
+  const handleRegister = async () => {
+    const {
+      name,
+      phone,
+      email,
+      password,
+      confirm_password,
+      passport_number,
+      dob,
+      gender,
+    } = form;
+
+    if (
+      !name || !phone || !email || !password ||
+      !confirm_password || !passport_number || !dob || !gender
+    ) {
+      alert("All fields are required");
+      return;
+    }
+
+    if (password !== confirm_password) {
+      alert("Password does not match");
+      return;
+    }
+
+    if (!checked) {
+      alert("Accept terms & conditions");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const res = await registerUser(form);
+
+      console.log("REGISTER SUCCESS:", res);
+
+      navigation.navigate("Verify", { phone });
+
+    } catch (error) {
+      alert(error.response?.data?.message || "Register failed");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    
     <ScrollView contentContainerStyle={styles.container}>
-
       <View style={styles.card}>
 
-        {/* TITLE */}
         <Text style={styles.title}>Create an account</Text>
 
-        {/* FULL NAME */}
-        <Text style={styles.label}>Full Name <Text style={styles.req}>*</Text></Text>
+        <Text style={styles.label}>Full Name *</Text>
         <View style={styles.inputBox}>
           <Icon name="person-outline" size={18} color="#9AA0A6" />
-          <TextInput placeholder="Enter your full name" style={styles.input} />
+          <TextInput
+            placeholder="Enter your full name"
+            placeholderTextColor="#9AA0A6"
+            style={styles.input}
+            onChangeText={(t) => handleChange("name", t)}
+          />
         </View>
 
-        {/* MOBILE */}
-        <Text style={styles.label}>Mobile Number <Text style={styles.req}>*</Text></Text>
+        <Text style={styles.label}>Mobile Number *</Text>
         <View style={styles.inputBox}>
           <Icon name="call-outline" size={18} color="#9AA0A6" />
-          <TextInput placeholder="01XXXXXXXXX" style={styles.input} />
+          <TextInput
+            placeholder="01XXXXXXXXX"
+            placeholderTextColor="#9AA0A6"
+            style={styles.input}
+            keyboardType="phone-pad"
+            onChangeText={(t) => handleChange("phone", t)}
+          />
         </View>
 
-        {/* DOB */}
-        <Text style={styles.label}>Date of Birth <Text style={styles.req}>*</Text></Text>
+
+        <Text style={styles.label}>Date of Birth *</Text>
         <View style={styles.inputBox}>
-          <Text style={styles.placeholder}>Select Date</Text>
+          <TextInput
+            placeholder="YYYY-MM-DD"
+            placeholderTextColor="#9AA0A6"
+            style={styles.input}
+            onChangeText={(t) => handleChange("dob", t)}
+          />
         </View>
 
-        {/* PASSPORT */}
-        <Text style={styles.label}>Passport No <Text style={styles.req}>*</Text></Text>
+
+        <Text style={styles.label}>Passport No *</Text>
         <View style={styles.inputBox}>
           <Icon name="document-text-outline" size={18} color="#9AA0A6" />
-          <TextInput placeholder="Enter your passport number" style={styles.input} />
+          <TextInput
+            placeholder="Enter passport number"
+            placeholderTextColor="#9AA0A6"
+            style={styles.input}
+            onChangeText={(t) => handleChange("passport_number", t)}
+          />
         </View>
 
-        {/* GENDER */}
-        <Text style={styles.label}>Gender <Text style={styles.req}>*</Text></Text>
+        <Text style={styles.label}>Gender *</Text>
         <View style={styles.inputBox}>
-          <Icon name="person-outline" size={18} color="#9AA0A6" />
-          <Text style={styles.placeholder}>Select gender</Text>
+          <TextInput
+            placeholder="male / female"
+            placeholderTextColor="#9AA0A6"
+            style={styles.input}
+            onChangeText={(t) => handleChange("gender", t)}
+          />
         </View>
 
-        {/* EMAIL */}
-        <Text style={styles.label}>Email Address <Text style={styles.req}>*</Text></Text>
+        <Text style={styles.label}>Email *</Text>
         <View style={styles.inputBox}>
           <Icon name="mail-outline" size={18} color="#9AA0A6" />
-          <TextInput placeholder="Enter your email address" style={styles.input} />
+          <TextInput
+            placeholder="Enter email"
+            placeholderTextColor="#9AA0A6"
+            style={styles.input}
+            onChangeText={(t) => handleChange("email", t)}
+          />
         </View>
 
-        {/* PASSWORD */}
-        <Text style={styles.label}>Password <Text style={styles.req}>*</Text></Text>
+        <Text style={styles.label}>Password *</Text>
         <View style={styles.inputBox}>
           <Icon name="lock-closed-outline" size={18} color="#9AA0A6" />
           <TextInput
-            placeholder="Enter your new password"
+            placeholder="Enter Password"
+            placeholderTextColor="#9AA0A6"
             secureTextEntry={!showPass}
             style={styles.input}
+            onChangeText={(t) => handleChange("password", t)}
           />
           <TouchableOpacity onPress={() => setShowPass(!showPass)}>
             <Icon name="eye-outline" size={18} color="#9AA0A6" />
           </TouchableOpacity>
         </View>
 
-        {/* CONFIRM PASSWORD */}
-        <Text style={styles.label}>Confirm Password <Text style={styles.req}>*</Text></Text>
+        <Text style={styles.label}>Confirm Password *</Text>
         <View style={styles.inputBox}>
           <Icon name="lock-closed-outline" size={18} color="#9AA0A6" />
           <TextInput
-            placeholder="Enter your new password"
+          placeholder="Enter Password"
+            placeholderTextColor="#9AA0A6"
             secureTextEntry={!showConfirm}
             style={styles.input}
+            onChangeText={(t) => handleChange("confirm_password", t)}
           />
           <TouchableOpacity onPress={() => setShowConfirm(!showConfirm)}>
             <Icon name="eye-outline" size={18} color="#9AA0A6" />
           </TouchableOpacity>
         </View>
 
-        {/* CHECKBOX */}
         <View style={styles.checkboxRow}>
           <TouchableOpacity onPress={() => setChecked(!checked)}>
             <View style={[styles.checkbox, checked && styles.checkedBox]}>
@@ -102,36 +190,24 @@ const RegisterScreen = () => {
           </TouchableOpacity>
 
           <Text style={styles.checkboxText}>
-            By continuing, you agree to our{" "}
-            <Text style={styles.link}>Terms of Service</Text> and{" "}
-            <Text style={styles.link}>Privacy Policy</Text>
+            Agree to Terms & Privacy
           </Text>
         </View>
 
-        {/* BUTTON */}
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>SIGN UP</Text>
+        <TouchableOpacity style={styles.button} onPress={handleRegister}>
+          {loading ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.buttonText}>SIGN UP</Text>
+          )}
         </TouchableOpacity>
-
-        {/* OR */}
-        <View style={styles.orRow}>
-          <View style={styles.line} />
-          <Text style={styles.orText}>OR</Text>
-          <View style={styles.line} />
-        </View>
-
-        {/* LOGIN */}
-        <Text style={styles.footer}>
-          Already have an account?{" "}
-          <Text style={styles.link}>Sign In</Text>
-        </Text>
 
       </View>
     </ScrollView>
   );
 };
 
-export default RegisterScreen; 
+export default RegisterScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -178,10 +254,11 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     marginLeft: 8,
+    color: "black"
   },
 
   placeholder: {
-    color: "#9AA0A6",
+    color: "#0000",
     marginLeft: 8,
   },
 
@@ -251,3 +328,4 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
 });
+

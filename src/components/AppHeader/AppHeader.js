@@ -1,64 +1,31 @@
-// import React from 'react';
-// import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
-// import Icon from 'react-native-vector-icons/Ionicons';
-
-// const AppHeader = ({ navigation }) => {
-//   return (
-//     <View style={styles.container}>
-      
-//       {/* Logo */}
-//       {/* <Image
-//         source={{
-//           uri: 'https://bhcjobs.com/images/logo_day_mode.png',
-//         }}
-//         style={styles.logo}
-//         resizeMode="contain"
-//       /> */}
-
-//       <>
-//        <Text>Test</Text>
-//       </>
-
-//       {/* Right Side */}
-//       <View style={styles.rightSection}>
-        
-//         {/* Sign In Button */}
-//         <TouchableOpacity style={styles.signInBtn} onPress={() => navigation.navigate("Login")}>
-//           <Text style={styles.signInText}>Sign In</Text>
-//         </TouchableOpacity>
-
-//         {/* Moon Icon */}
-//         <TouchableOpacity style={styles.iconBtn}>
-//           <Icon name="moon-outline" size={20} color="#4A90E2" />
-//         </TouchableOpacity>
-
-//       </View>
-//     </View>
-//   );
-// };
-
-// export default AppHeader; 
-
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet,Image } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-const AppHeader = () => {
+const AppHeader = ({ title = "Sign In", navigateTo = "Login" }) => {
   const navigation = useNavigation();
+  const insets = useSafeAreaInsets();
 
   return (
     <View style={styles.container}>
 
-      <Text>Test</Text>
+           <Image
+        source={{
+          uri: 'https://bhcjobs.com/images/logo_day_mode.png',
+        }}
+        style={styles.logo}
+        resizeMode="contain"
+      />
 
       <View style={styles.rightSection}>
         
-        <TouchableOpacity
+          <TouchableOpacity
           style={styles.signInBtn}
-          onPress={() => navigation.navigate("Login")}
+          onPress={() => navigation.navigate(navigateTo)} 
         >
-          <Text style={styles.signInText}>Sign In</Text>
+          <Text style={styles.signInText}>{title}</Text> 
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.iconBtn}>

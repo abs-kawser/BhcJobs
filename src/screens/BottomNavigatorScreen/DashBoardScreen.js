@@ -1,10 +1,11 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
+import LoginScreen from '../Auth/LoginScreen'
 
-const DashBoardScreen = () => {
+const DashBoardScreen = ({navigation}) => {
   return (
-    <View>
-      <Text>DashBoardScreen</Text>
+    <View style={{flex:1}}>
+      <LoginScreen  navigation={navigation} />
     </View>
   )
 }

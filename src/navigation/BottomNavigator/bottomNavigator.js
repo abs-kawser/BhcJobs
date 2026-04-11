@@ -9,6 +9,8 @@ import HomeScreen from '../../screens/BottomNavigatorScreen/HomeScreen';
 import JobsScreen from '../../screens/BottomNavigatorScreen/JobsScreens';
 import ProfileScreen from '../../screens/BottomNavigatorScreen/ProfileScreen';
 import SearchScreen from '../../screens/BottomNavigatorScreen/SearchScreen';
+import Entypo from 'react-native-vector-icons/Entypo';
+
 
 const Tab = createBottomTabNavigator();
 
@@ -43,7 +45,7 @@ const BottomNavigator = () => {
         tabBarIcon: ({ color }) => {
 
           if (route.name === 'Home') {
-            return <FA6 name="clock-rotate-left" size={22} color={color} solid />;
+            return <Entypo name="home" size={22} color={color} />;
           }
 
           if (route.name === 'Profile') {
