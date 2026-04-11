@@ -1,97 +1,120 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# BhcJobs - React Native App
 
-# Getting Started
+This project was developed as part of a given task to build the **BhcJobs** mobile application using **React Native CLI**. The task required implementing a Landing Page, Login Screen, and Registration Screen with full API integration as provided in the task document. All required screens have been completed with dynamic data fetched from the provided APIs. UI accuracy has been tested and verified on Android devices up to **Android 16**. The production APK is available for download via the Google Drive link below.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+📦 **Download APK:** [Click here to download](https://drive.google.com/file/d/1X9SRrHOEg2vacEIVteII6PKeJAHJYaP7/view?usp=drive_link)
 
-## Step 1: Start Metro
+🔗 **GitHub Repository:** [https://github.com/abs-kawser/BhcJobs](https://github.com/abs-kawser/BhcJobs)
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+---
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+## Features
 
-```sh
-# Using npm
-npm start
+- **Landing Page**
+  - Hero / Banner section
+  - Popular Industries section (fetched from API)
+  - Recommended Jobs section (fetched from API)
+  - Popular Companies section (fetched from API)
+  - Smooth animations using gesture handler for an enhanced user experience
+  - UI accuracy tested and matched against the reference design at [bhcjobs.com](https://bhcjobs.com)
 
-# OR using Yarn
-yarn start
+- **Login Screen**
+  - Phone & password input fields
+  - Form validation
+  - Loading indicator during API request
+  - API integration with `/api/job_seeker/login`
+
+- **Registration Screen**
+  - Full registration form (name, phone, email, password, confirm password, passport number, date of birth, gender)
+  - OTP verification screen after successful registration
+  - Loading indicator during API request
+  - API integration with `/api/job_seeker/register` and `/api/job_seeker/phone_verify`
+
+- **Navigation**
+  - Smooth navigation between Login and Registration screens
+
+---
+
+## Tech Stack
+
+| Tool | Purpose |
+|------|---------|
+| React Native CLI | Mobile framework |
+| React Navigation | Screen navigation |
+| Axios | API calls |
+| React Native Gesture Handler | Animations & gesture support |
+| React Native Reanimated | Smooth UI animations |
+| useState / useEffect | State management |
+
+---
+
+## Prerequisites
+
+Make sure you have the following installed:
+
+- [Node.js](https://nodejs.org/) (v18 or above)
+- [npm](https://www.npmjs.com/) or [yarn](https://yarnpkg.com/)
+- [React Native CLI](https://reactnative.dev/docs/environment-setup)
+- Android Studio (for Android emulator or physical device)
+
+---
+
+## Installation & Setup
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/abs-kawser/BhcJobs.git
+cd BhcJobs
 ```
 
-## Step 2: Build and run your app
+### 2. Install dependencies
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
-
-### Android
-
-```sh
-# Using npm
-npm run android
-
-# OR using Yarn
-yarn android
+```bash
+npm install
+# or
+yarn install
 ```
 
-### iOS
+### 3. Run on Android
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
-
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
-
-```sh
-bundle install
+```bash
+npx react-native run-android
 ```
 
-Then, and every time you update your native dependencies, run:
+---
 
-```sh
-bundle exec pod install
-```
+## APK Installation (Android)
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+1. Download the APK from the link below:
+   👉 [Download app-release.apk](https://drive.google.com/file/d/1X9SRrHOEg2vacEIVteII6PKeJAHJYaP7/view?usp=drive_link)
+2. Enable **Install from Unknown Sources** on your Android device
+3. Open the APK file and install
 
-```sh
-# Using npm
-npm run ios
+> Tested on Android versions up to **Android 16**
 
-# OR using Yarn
-yarn ios
-```
+---
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+## API Reference
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+**Base URL:** `https://dev.bhcjobs.com`
 
-## Step 3: Modify your app
+**Image Storage URL:** `https://dev.bhcjobs.com/storage`
 
-Now that you have successfully run the app, let's make changes!
+### GET Endpoints
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+| Endpoint | Description |
+|----------|-------------|
+| `/api/industry/get` | Fetch all industries |
+| `/api/job/get` | Fetch all jobs |
+| `/api/company/get` | Fetch all companies |
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+### POST Endpoints
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+| Endpoint | Description | Required Fields |
+|----------|-------------|-----------------|
+| `/api/job_seeker/register` | Register new user | name, phone, email, password, confirm_password, passport_number, dob, gender |
+| `/api/job_seeker/phone_verify` | Verify OTP | phone, otp |
+| `/api/job_seeker/login` | Login user | phone, password |
 
-## Congratulations! :tada:
 
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
